@@ -12,11 +12,11 @@ class PlayerHandler(server.Handler):
     def __init__(self, player):
         self.player = player
 
-    def on_peer_connected(self, peer):
-        print('Peer connected: {}'.format(peer))
+    # def on_peer_connected(self, peer):
+        # print('Peer connected: {}'.format(peer))
 
-    def on_peer_disconnected(self, peer):
-        print('Peer disconnected: {}'.format(peer))
+    # def on_peer_disconnected(self, peer):
+        # print('Peer disconnected: {}'.format(peer))
 
     def on_midi_commands(self, peer, command_list):
         for command in command_list:
@@ -30,6 +30,8 @@ class PlayerHandler(server.Handler):
 
 if __name__ == '__main__':
     os.system('clear')
+    print(chr(27) + "[2J")
+    print("\033c\033[3J\033[2J\033[0m\033[H")
 
     vlc_instance = vlc.Instance('--input-repeat=999999', '--no-video-title-show', '--verbose=0')
     vlc_instance.log_unset()
