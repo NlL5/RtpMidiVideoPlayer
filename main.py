@@ -1,4 +1,6 @@
+import os
 import sys
+
 import vlc
 from pymidi import server
 
@@ -26,7 +28,10 @@ class PlayerHandler(server.Handler):
 
 
 if __name__ == '__main__':
-    vlc_instance = vlc.Instance('--input-repeat=999999', '--no-video-title-show')
+    os.system('clear')
+
+    vlc_instance = vlc.Instance('--input-repeat=999999', '--no-video-title-show', '--verbose=0')
+    vlc_instance.log_unset()
 
     # Load playlist
     playlist_media = vlc_instance.media_new(sys.argv[1])
@@ -35,6 +40,8 @@ if __name__ == '__main__':
     player = vlc_instance.media_list_player_new()
     player.set_media_list(playlist_media.subitems())
     player.play()  # start with first element
+
+    os.system('clear')
 
     rtpMidiServer = server.Server([('0.0.0.0', 5004)])
     rtpMidiServer.add_handler(PlayerHandler(player))
