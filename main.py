@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
     player = vlc.MediaListPlayer()
     player.set_media_list(playlist_media.subitems())
+    player.vlm_set_loop("Flammenmeer_Banner", True)
     player.play()  # start with first element
 
     rtpMidiServer = server.Server([('0.0.0.0', 5004)])
