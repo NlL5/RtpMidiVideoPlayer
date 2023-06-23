@@ -22,7 +22,7 @@ class PlayerHandler(server.Handler):
                 key = command.params.key
                 velocity = command.params.velocity
                 print('Someone hit the key {} with velocity {}'.format(key, velocity))
-                self.player.play_item_at_index(key*100 + velocity)
+                self.player.play_item_at_index(int(key)*100 + int(velocity))
 
 
 if __name__ == '__main__':
