@@ -5,7 +5,7 @@ Description=Video player
 User=flammenmeer
 Type=simple
 WorkingDirectory=/home/flammenmeer/RtpMidiVideoPlayer/
-ExecStart=/home/flammenmeer/.local/bin/pipenv run python main.py ../nextcloud/Live-Beamer/playlist.xspf
+ExecStart=/home/flammenmeer/.local/bin/pipenv run python main.py ../nextcloud/Live-Beamer/playlist.m3u
 Restart=on-failure
 
 [Install]
