@@ -1,0 +1,14 @@
+[Unit]
+Description=Nextcloud Client
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+User=flammenmeer
+Type=oneshot
+ExecStart=/usr/bin/nextcloudcmd -u "BandBeamer" -p "..." /home/flammenmeer/nextcloud https://cloud.flammenmeer.band
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

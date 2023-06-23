@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
     player = vlc.MediaListPlayer()
     player.set_media_list(playlist_media.subitems())
+    player.play()  # start with first element
 
     rtpMidiServer = server.Server([('0.0.0.0', 5004)])
     rtpMidiServer.add_handler(PlayerHandler(player))
