@@ -26,13 +26,14 @@ class PlayerHandler(server.Handler):
 
 
 if __name__ == '__main__':
+    vlc_instance = vlc.Instance('--input-repeat=999999', '--no-video-title-show')
+
     # Load playlist
-    playlist_media = vlc.Media(sys.argv[1])
+    playlist_media = vlc_instance.media_new(sys.argv[1])
     playlist_media.parse()  # deprecated but nice
 
-    player = vlc.MediaListPlayer()
+    player = vlc_instance.media_list_player_new()
     player.set_media_list(playlist_media.subitems())
-    player.vlm_set_loop("Flammenmeer_Banner", True)
     player.play()  # start with first element
 
     rtpMidiServer = server.Server([('0.0.0.0', 5004)])
