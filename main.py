@@ -33,7 +33,7 @@ if __name__ == '__main__':
     print(chr(27) + "[2J")
     print("\033c\033[3J\033[2J\033[0m\033[H")
 
-    vlc_instance = vlc.Instance('--input-repeat=999999', '--no-video-title-show', '--verbose=0', '--vout=mmal_vout', '--no-audio')
+    vlc_instance = vlc.Instance('--input-repeat=999999', '--no-video-title-show', '--verbose=0', '--no-audio')
     vlc_instance.log_unset()
 
     # Load playlist
