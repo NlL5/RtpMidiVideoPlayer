@@ -5,8 +5,9 @@ After=network.target network-online.target
 
 [Service]
 User=flammenmeer
-Type=oneshot
+Type=simple
 ExecStart=/usr/bin/nextcloudcmd -u "BandBeamer" -p "..." /home/flammenmeer/nextcloud https://cloud.flammenmeer.band
+ExecStartPost=/usr/bin/sleep 5
 KillMode=process
 Restart=on-failure
 
