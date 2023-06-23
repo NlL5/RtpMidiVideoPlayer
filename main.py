@@ -23,8 +23,9 @@ class PlayerHandler(server.Handler):
             if command.command == 'note_on':
                 key = command.params.key
                 velocity = command.params.velocity
-                print('Someone hit the key {} with velocity {}'.format(key, velocity))
+                # print('Someone hit the key {} with velocity {}'.format(key, velocity))
                 self.player.play_item_at_index(int(key)*100 + int(velocity))
+                os.system('clear')
 
 
 if __name__ == '__main__':
