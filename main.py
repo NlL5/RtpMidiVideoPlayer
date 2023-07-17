@@ -49,7 +49,6 @@ if __name__ == '__main__':
     background_player.set_media_list(playlist_media.subitems())
     background_player.play()  # start with first element
 
-    time.sleep(4)
     foreground_instance = vlc.Instance('--input-repeat=999999', '--no-video-title-show', '--no-audio',
                                        '--vout=gles2')  # , '--no-autoscale'
     playlist_media = foreground_instance.media_new(sys.argv[2])
@@ -62,5 +61,5 @@ if __name__ == '__main__':
 
     # Start RTP server and accept all incoming connection requests
     rtpMidiServer = server.Server([('0.0.0.0', 5004)])
-    rtpMidiServer.add_handler(PlayerHandler(background_player, foreground_instance))
+    rtpMidiServer.add_handler(PlayerHandler(background_player, foreground_player))
     rtpMidiServer.serve_forever()
