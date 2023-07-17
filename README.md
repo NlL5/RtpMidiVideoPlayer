@@ -1,9 +1,10 @@
 # Raspberry installation
 
 ## config.txt
+```
 disable_overscan=1
 dtoverlay=rpivid-v4l2
-
+```
 Does not work for video playback: dtoverlay=vc4-fkms-v3d,cma-256
 
 ## basic config
@@ -23,14 +24,22 @@ network={
 ## Setup in the raspberry
 ```
 $ sudo apt update && sudo apt upgrade
-$ sudo apt install nextcloud-cmd vlc python3-pip git vim
+$ sudo apt install vlc python3-pip git vim nextcloud-desktop nextcloud-cmd
 $ pip install pipenv
 
 $ git clone git@github.com:NlL5/RtpMidiVideoPlayer.git
 $ cd ./RtpMidiVideoPlayer
+$ pipenv install
+```
+
+For Raspberry Pi without display manager, you can use the services.
+For a Pi _with_ display manager, you can use the autostart entries. Put the *.desktop files into:
+```
+ln -s services/com.nextcloud.desktopclient.nextcloud.desktop ~/.config/autostart/
+ln -s services/video-player.desktop ~/.config/autostart/
 ```
 
 # Starting
 ```
-$ pipenv run python ./main.py /home/flammenmeer/nextcloud/Live-Beamer/playlist.xspf
+$ pipenv run python ./main.py background_playlist.m3u foreground_playlist.m3u
 ```

@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=Application
+Name=RtpMidiVideoPlayer
+Exec=bash -c 'cd "/home/flammenmeer/RtpMidiVideoPlayer" && pipenv run python main.py ../Nextcloud/Live-Beamer/playlist.m3u ../Nextcloud/Live-Beamer/playlist_foreground.m3u'
