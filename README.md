@@ -35,8 +35,8 @@ $ pipenv install
 For Raspberry Pi without display manager, you can use the services.
 For a Pi _with_ display manager, you can use the autostart entries. Put the *.desktop files into:
 ```
-ln -s services/com.nextcloud.desktopclient.nextcloud.desktop ~/.config/autostart/
-ln -s services/video-player.desktop ~/.config/autostart/
+ln -s -r services/com.nextcloud.desktopclient.nextcloud.desktop ~/.config/autostart/
+ln -s -r services/video-player.desktop ~/.config/autostart/
 ```
 
 # Starting
