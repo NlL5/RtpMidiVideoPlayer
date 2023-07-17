@@ -26,7 +26,7 @@ class PlayerHandler(server.Handler):
             if command.command == 'note_on':
                 key = command.params.key
                 velocity = command.params.velocity
-                player = self.background_player if command_list.channel == 0 else self.foreground_player
+                player = self.background_player if command.channel == 0 else self.foreground_player
                 player.play_item_at_index(int(key) * 100 + int(velocity))
 
                 print('Someone hit the key {} with velocity {}'.format(key, velocity))
