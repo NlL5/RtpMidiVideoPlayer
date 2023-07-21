@@ -1,19 +1,24 @@
 import os
 import sys
+import threading
 import time
+import uuid
 
+import pywinctl
 import vlc
 from pymidi import server
 
 
 # https://github.com/mik3y/pymidi#using-in-another-project
 class PlayerHandler(server.Handler):
-    background_player = None
-    foreground_player = None
+    player_1 = None
+    player_2 = None
+    current = None
 
-    def __init__(self, background_player, foreground_player):
-        self.background_player = background_player
-        self.foreground_player = foreground_player
+    def __init__(self, player_1, player_2):
+        self.player_1 = player_1
+        self.player_2 = player_2
+        self.current = self.player_2
 
     def on_peer_connected(self, peer):
         print('Peer connected: {}'.format(peer))
@@ -26,40 +31,53 @@ class PlayerHandler(server.Handler):
             if command.command == 'note_on':
                 key = command.params.key
                 velocity = command.params.velocity
-                player = self.background_player if command.channel == 0 else self.foreground_player
-                player.play_item_at_index(int(key) * 100 + int(velocity))
+                other = self.current
+                self.current = self.player_1 if self.current == self.player_2 else self.player_2
+                self.current[0].play_item_at_index(int(key) * 100 + int(velocity))
 
-                print('Someone hit the key {} with velocity {}'.format(key, velocity))
+                def wait_and_front():
+                    time.sleep(command.channel)
+                    self.current[1].activate()
+                    other[0].pause()
+
+                t = threading.Thread(target=wait_and_front)
+                t.start()
+
+                print('Someone hit command {} the key {} with velocity {}'.format(key, velocity, command.command))
 
 
-if __name__ == '__main__':
-    background_instance = vlc.Instance('--input-repeat=999999', '--no-video-title-show', '--no-audio',
-                                       '--vout=gles2')  # , '--no-autoscale'
+def spawn_player():
+    window_title = str(uuid.uuid4())
+    args = ['--input-repeat=999999', '--no-video-title-show', '--no-audio', '--vout=gles2']  # , '--no-autoscale'
+    args = ['--input-repeat=999999', '--no-video-title-show', '--no-audio', '--video-title=' + window_title]
 
-    # Load playlist
-    playlist_media = background_instance.media_new(sys.argv[1])
+    instance = vlc.Instance(args)
+    playlist_media = instance.media_new(sys.argv[1])
     playlist_media.parse()  # deprecated but nice
 
     # Initialize background player
-    background_player = background_instance.media_list_player_new()
-    background_player.get_media_player().set_fullscreen(True)
-    # background_player.get_media_player().set_renderer()
-    # background_player.get_media_player().video_set_scale(1)
-    # background_player.get_media_player().video_set_aspect_ratio('1:1')
-    background_player.set_media_list(playlist_media.subitems())
-    background_player.play()  # start with first element
+    player = instance.media_list_player_new()
+    player.get_media_player().set_fullscreen(True)
+    player.set_media_list(playlist_media.subitems())
+    player.play()  # open window ...
+    time.sleep(1)
+    player.pause()  # ... but do not play
 
-    foreground_instance = vlc.Instance('--input-repeat=999999', '--no-video-title-show', '--no-audio',
-                                       '--vout=gles2')  # , '--no-autoscale'
-    playlist_media = foreground_instance.media_new(sys.argv[2])
-    playlist_media.parse()  # deprecated but nice
+    windows = pywinctl.getWindowsWithTitle(window_title)
+    if windows:
+        window = windows[0]
+    else:
+        raise Exception('Did not find window ' + window_title + '! Check the video title')
 
-    # initialize foreground player
-    foreground_player = foreground_instance.media_list_player_new()
-    foreground_player.get_media_player().set_fullscreen(True)
-    foreground_player.set_media_list(playlist_media.subitems())
+    return player, window
+
+if __name__ == '__main__':
+
+    player1 = spawn_player()
+    player2 = spawn_player()
+    player2[0].play()
 
     # Start RTP server and accept all incoming connection requests
     rtpMidiServer = server.Server([('0.0.0.0', 5004)])
-    rtpMidiServer.add_handler(PlayerHandler(background_player, foreground_player))
+    rtpMidiServer.add_handler(PlayerHandler(player1, player2))
     rtpMidiServer.serve_forever()

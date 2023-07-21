@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 pymidi = ">=0.5.0"
 python-vlc = ">=3.0.18122"
+pywinctl = "*"
 
 [dev-packages]
 

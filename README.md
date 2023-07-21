@@ -24,7 +24,7 @@ network={
 ## Setup in the raspberry
 ```
 $ sudo apt update && sudo apt upgrade
-$ sudo apt install vlc python3-pip git vim nextcloud-desktop nextcloud-cmd
+$ sudo apt install vlc python3-pip python3-tk git vim nextcloud-desktop nextcloud-cmd
 $ pip install pipenv
 
 $ git clone git@github.com:NlL5/RtpMidiVideoPlayer.git

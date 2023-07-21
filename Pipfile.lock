@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "dc47b5c2a0b2628d964d9a3b4d0ea003bb53df299462a3badf1fc2a21567d2b7"
+            "sha256": "f285b4ab240c18d1f301e5c2e738884b4418d56f7ff607d820ff1d78d88a2843"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -21,6 +21,13 @@
             "markers": "python_version >= '3.6'",
             "version": "==2.10.68"
         },
+        "ewmh": {
+            "hashes": [
+                "sha256:c56b093f7d575181e979bb3a7d15c34065755f811c351ff0a31fede12b09343d"
+            ],
+            "markers": "sys_platform == 'linux'",
+            "version": "==0.1.6"
+        },
         "future": {
             "hashes": [
                 "sha256:34a17436ed1e96697a86f9de3d15a3b0be01d8bc8de9c1dffd59fb8234ed5307"
@@ -35,6 +42,12 @@
             "index": "pypi",
             "version": "==0.5.0"
         },
+        "pyrect": {
+            "hashes": [
+                "sha256:f65155f6df9b929b67caffbd57c0947c5ae5449d3b580d178074bffb47a09b78"
+            ],
+            "version": "==0.2.0"
+        },
         "python-vlc": {
             "hashes": [
                 "sha256:00e5133886a956ded7362b48926818e5486dfd73b2f9319b76d977acefe6042c",
@@ -42,6 +55,21 @@
             ],
             "index": "pypi",
             "version": "==3.0.18122"
+        },
+        "python-xlib": {
+            "hashes": [
+                "sha256:55af7906a2c75ce6cb280a584776080602444f75815a7aff4d287bb2d7018b32",
+                "sha256:c3534038d42e0df2f1392a1b30a15a4ff5fdc2b86cfa94f072bf11b10a164398"
+            ],
+            "markers": "sys_platform == 'linux'",
+            "version": "==0.33"
+        },
+        "pywinctl": {
+            "hashes": [
+                "sha256:c02caf9c320f3365308245ba216154d3afeddcbfcd1c34c412df632f50c2dd1f"
+            ],
+            "index": "pypi",
+            "version": "==0.0.43"
         },
         "six": {
             "hashes": [
