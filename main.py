@@ -23,7 +23,7 @@ class PlayerHandler(server.Handler):
     player_1: Player = None
     player_2: Player = None
     current: Player = None
-    playerIndex: Dict[int, Player] = {}
+    playerKey: Dict[int, Player] = {}
 
     def __init__(self, player_1, player_2):
         self.player_1 = player_1
@@ -43,23 +43,24 @@ class PlayerHandler(server.Handler):
                 continue
             key = command.params.key
             velocity = command.params.velocity
-            index = int(key) * 100 + int(velocity)
+            channel = command.channel
+            index = int(channel) * 100 + int(key)
 
             if command.command == 'note_on' and velocity > 0:
                 self.current = self.player_1 if self.current == self.player_2 else self.player_2
                 self.current.player.play_item_at_index(index)
-                self.playerIndex[index] = self.current
+                self.playerKey[key] = self.current
 
                 def wait_and_front():
-                    time.sleep(command.channel)
+                    time.sleep((velocity - 1) * 0.1)
                     self.current.window.activate()
                     # other.player.pause()
 
                 t = threading.Thread(target=wait_and_front)
                 t.start()
-            elif command.command == 'note_off' and (index in self.playerIndex or index == 0):
-                player = self.playerIndex[index]
-                del self.playerIndex[index]
+            elif key in self.playerKey and not (command.command == 'note_off' and velocity == 127):
+                player = self.playerKey[key]
+                del self.playerKey[key]
 
                 other = self.player_1 if self.current == self.player_2 else self.player_2
                 other.window.activate()
