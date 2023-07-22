@@ -1,19 +1,29 @@
-import os
 import sys
 import threading
 import time
 import uuid
+from typing import Dict
 
 import pywinctl
 import vlc
 from pymidi import server
 
 
+class Player:
+    player: vlc.MediaListPlayer = None
+    window: pywinctl.BaseWindow = None
+
+    def __init__(self, player, window):
+        self.player = player
+        self.window = window
+
+
 # https://github.com/mik3y/pymidi#using-in-another-project
 class PlayerHandler(server.Handler):
-    player_1 = None
-    player_2 = None
-    current = None
+    player_1: Player = None
+    player_2: Player = None
+    current: Player = None
+    playerIndex: Dict[int, Player] = {}
 
     def __init__(self, player_1, player_2):
         self.player_1 = player_1
@@ -28,22 +38,34 @@ class PlayerHandler(server.Handler):
 
     def on_midi_commands(self, peer, command_list):
         for command in command_list:
-            if command.command == 'note_on':
-                key = command.params.key
-                velocity = command.params.velocity
-                other = self.current
+
+            if command.command != 'note_on' and command.command != 'note_off':
+                continue
+            key = command.params.key
+            velocity = command.params.velocity
+            index = int(key) * 100 + int(velocity)
+
+            if command.command == 'note_on' and velocity > 0:
                 self.current = self.player_1 if self.current == self.player_2 else self.player_2
-                self.current[0].play_item_at_index(int(key) * 100 + int(velocity))
+                self.current.player.play_item_at_index(index)
+                self.playerIndex[index] = self.current
 
                 def wait_and_front():
                     time.sleep(command.channel)
-                    self.current[1].activate()
-                    other[0].pause()
+                    self.current.window.activate()
+                    # other.player.pause()
 
                 t = threading.Thread(target=wait_and_front)
                 t.start()
+            elif command.command == 'note_off' and (index in self.playerIndex or index == 0):
+                player = self.playerIndex[index]
+                del self.playerIndex[index]
 
-                print('Someone hit command {} the key {} with velocity {}'.format(key, velocity, command.command))
+                other = self.player_1 if self.current == self.player_2 else self.player_2
+                other.window.activate()
+                player.player.pause()
+
+            print('Someone hit command {} the key {} with velocity {}'.format(command.command, key, velocity))
 
 
 def spawn_player():
@@ -69,15 +91,15 @@ def spawn_player():
     else:
         raise Exception('Did not find window ' + window_title + '! Check the video title')
 
-    return player, window
+    return Player(player, window)
 
 if __name__ == '__main__':
 
     player1 = spawn_player()
     player2 = spawn_player()
-    player2[0].play()
+    player2.player.play()
 
     # Start RTP server and accept all incoming connection requests
-    rtpMidiServer = server.Server([('0.0.0.0', 5004)])
+    rtpMidiServer = server.Server([('0.0.0.0', 5005)])
     rtpMidiServer.add_handler(PlayerHandler(player1, player2))
     rtpMidiServer.serve_forever()
