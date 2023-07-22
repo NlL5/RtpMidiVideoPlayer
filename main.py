@@ -22,10 +22,12 @@ class Player:
 class PlayerHandler(server.Handler):
     player_1: Player = None
     player_2: Player = None
+    background_player: Player = None
     current: Player = None
     playerKey: Dict[int, Player] = {}
 
-    def __init__(self, player_1, player_2):
+    def __init__(self, player_1, player_2, background_player):
+        self.background_player = background_player
         self.player_1 = player_1
         self.player_2 = player_2
         self.current = self.player_1
@@ -44,9 +46,13 @@ class PlayerHandler(server.Handler):
             key = command.params.key
             velocity = command.params.velocity
             channel = command.channel
-            index = int(channel) * 100 + int(key)
+            index = int(channel % 8) * 100 + int(key)
 
-            if command.command == 'note_on' and velocity > 0:
+            if command.command == 'note_on' and channel >= 8:
+                self.background_player.player.play_item_at_index(index)
+                self.background_player.window.activate()
+                self.current = self.background_player
+            elif command.command == 'note_on' and velocity > 0:
                 self.current = self.player_1 if self.current == self.player_2 else self.player_2
                 self.current.player.play_item_at_index(index)
                 self.playerKey[index] = self.current
@@ -58,16 +64,19 @@ class PlayerHandler(server.Handler):
 
                 t = threading.Thread(target=wait_and_front)
                 t.start()
-            elif index in self.playerKey and not (command.command == 'note_off' and velocity == 127):
+            elif channel < 8 and index in self.playerKey and not (command.command == 'note_off' and velocity == 127):
                 player = self.playerKey[index]
                 del self.playerKey[index]
 
                 other = self.player_1 if player == self.player_2 else self.player_2
-                other.window.activate()
+                if other in self.playerKey.values():
+                    other.window.activate()
+                else:
+                    self.background_player.window.activate()
                 self.current = other
                 player.player.pause()
 
-            print('Someone hit command {} the key {} with velocity {}'.format(command.command, key, velocity))
+            print('Someone hit command {} on channel {} the key {} with velocity {}'.format(command.command, channel, key, velocity))
 
 
 def spawn_player():
@@ -85,7 +94,7 @@ def spawn_player():
     #player.play()  # open window ...
     player.play_item_at_index(2)
     time.sleep(1)
-    #player.pause()  # ... but do not play
+    player.pause()  # ... but do not play
     #time.sleep(1)
 
     windows = pywinctl.getWindowsWithTitle(window_title)
@@ -100,10 +109,10 @@ if __name__ == '__main__':
 
     player1 = spawn_player()
     player2 = spawn_player()
-    player1.window.activate()
-    player2.player.pause()
+    background = spawn_player()
+    background.player.play()
 
     # Start RTP server and accept all incoming connection requests
     rtpMidiServer = server.Server([('0.0.0.0', 5005)])
-    rtpMidiServer.add_handler(PlayerHandler(player1, player2))
+    rtpMidiServer.add_handler(PlayerHandler(player1, player2, background))
     rtpMidiServer.serve_forever()
