@@ -28,7 +28,7 @@ class PlayerHandler(server.Handler):
     def __init__(self, player_1, player_2):
         self.player_1 = player_1
         self.player_2 = player_2
-        self.current = self.player_2
+        self.current = self.player_1
 
     def on_peer_connected(self, peer):
         print('Peer connected: {}'.format(peer))
@@ -49,7 +49,7 @@ class PlayerHandler(server.Handler):
             if command.command == 'note_on' and velocity > 0:
                 self.current = self.player_1 if self.current == self.player_2 else self.player_2
                 self.current.player.play_item_at_index(index)
-                self.playerKey[key] = self.current
+                self.playerKey[index] = self.current
 
                 def wait_and_front():
                     time.sleep((velocity - 1) * 0.1)
@@ -58,12 +58,13 @@ class PlayerHandler(server.Handler):
 
                 t = threading.Thread(target=wait_and_front)
                 t.start()
-            elif key in self.playerKey and not (command.command == 'note_off' and velocity == 127):
-                player = self.playerKey[key]
-                del self.playerKey[key]
+            elif index in self.playerKey and not (command.command == 'note_off' and velocity == 127):
+                player = self.playerKey[index]
+                del self.playerKey[index]
 
-                other = self.player_1 if self.current == self.player_2 else self.player_2
+                other = self.player_1 if player == self.player_2 else self.player_2
                 other.window.activate()
+                self.current = other
                 player.player.pause()
 
             print('Someone hit command {} the key {} with velocity {}'.format(command.command, key, velocity))
@@ -71,8 +72,7 @@ class PlayerHandler(server.Handler):
 
 def spawn_player():
     window_title = str(uuid.uuid4())
-    args = ['--input-repeat=999999', '--no-video-title-show', '--no-audio', '--vout=gles2']  # , '--no-autoscale'
-    args = ['--input-repeat=999999', '--no-video-title-show', '--no-audio', '--video-title=' + window_title]
+    args = ['--input-repeat=999999', '--no-video-title-show', '--no-audio', '--video-title=' + window_title, '--vout=gles2']
 
     instance = vlc.Instance(args)
     playlist_media = instance.media_new(sys.argv[1])
@@ -82,9 +82,11 @@ def spawn_player():
     player = instance.media_list_player_new()
     player.get_media_player().set_fullscreen(True)
     player.set_media_list(playlist_media.subitems())
-    player.play()  # open window ...
+    #player.play()  # open window ...
+    player.play_item_at_index(2)
     time.sleep(1)
-    player.pause()  # ... but do not play
+    #player.pause()  # ... but do not play
+    #time.sleep(1)
 
     windows = pywinctl.getWindowsWithTitle(window_title)
     if windows:
@@ -98,7 +100,8 @@ if __name__ == '__main__':
 
     player1 = spawn_player()
     player2 = spawn_player()
-    player2.player.play()
+    player1.window.activate()
+    player2.player.pause()
 
     # Start RTP server and accept all incoming connection requests
     rtpMidiServer = server.Server([('0.0.0.0', 5005)])
